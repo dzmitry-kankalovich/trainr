@@ -33,7 +33,7 @@ commonAnnotations:
 # YAML string, with resources separated by document
 # markers ("---").
 resources:
-- some-service.yaml
+- api-graphql.yaml
 
 # Each entry in this list results in the creation of
 # one ConfigMap resource (it's a generator of n maps).

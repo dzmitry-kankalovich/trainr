@@ -14,3 +14,4 @@ Implementation plan:
 * Secret Management - Vault
 * Deployment - Kubernetes using Helm
 * Build system - Bazel
+* CI - GitHub (?)

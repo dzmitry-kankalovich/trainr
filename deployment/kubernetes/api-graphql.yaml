@@ -14,6 +14,9 @@ spec:
       containers:
       - name: api-graphql
         image: api-graphql-nodejs
+        env:
+          - name: NODE_ENV
+            value: production
         resources:
           limits:
             memory: "128Mi"
