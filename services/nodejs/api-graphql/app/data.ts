@@ -1,12 +1,23 @@
-import { Book } from "./gql-types";
+import { User } from "./gql-types";
 
-export const books: Book[] = [
-    {
-        title: 'Harry Potter and the Chamber of Secrets',
-        author: 'J.K. Rowling',
-    },
-    {
-        title: 'Jurassic Park',
-        author: 'Michael Crichton',
-    },
-];
+interface Data {
+    users: User[]
+}
+
+export const data: Data = {
+    users: [
+        {
+            id: "1",
+            firstName: "Dima",
+            lastName: "K",
+            email: "dkankalovich@test.com",
+            phone: "1-111-111-1111"
+        },
+        {
+            id: "2",
+            firstName: "Kate",
+            "lastName": "U",
+            email: "kateu@test.com"
+        }
+    ]
+}

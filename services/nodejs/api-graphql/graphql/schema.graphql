@@ -1,0 +1,111 @@
+type Query {
+    me: User!
+    user(id: ID!): User
+}
+
+type User {
+    id: ID!
+    firstName: String!
+    middleName: String
+    lastName: String!
+    email: String!
+    phone: String
+    addresses: [UserAddress]
+    orders: [Order]
+    wishlists: [Wishlist]
+    paymentMethods: [PaymentMethod]
+  }
+
+  type Wishlist {
+    id: ID!
+    name: String!
+    products: [Product]
+  }
+
+  type PaymentMethod {
+    id: ID!
+    name: String!
+    type: PaymentType!
+
+    billingAddress: UserAddress
+
+    "If this is a default payment method for user"
+    default: Boolean
+  }
+
+  union PaymentType = PaymentTypeCard
+
+  type PaymentTypePayPal {
+    lastFourDigits: String!
+  }
+
+  type PaymentTypeCard {
+    lastFourDigits: String!
+    expDate: String!
+    type: CardType
+    network: CardProvider
+    bank: Bank
+  }
+
+  enum CardType {
+    DEBIT
+    CREDIT
+  }
+
+  enum CardProvider {
+    VISA
+    MASTERCARD
+    AMEX
+    DISCOVER
+  }
+
+  enum Bank {
+    JPMORGAN_CHASE
+    AMEX
+    BOFA
+    DISCOVER
+  }
+
+  type UserAddress {
+    id: ID!
+    address: Address
+
+    "If this is a default selected address for user"
+    default: Boolean
+  }
+
+  type Address {
+    addressLine1: String!
+    addressLine2: String
+    city: String!
+    state: String!
+    country: Country!
+    zip: String!
+  }
+
+  enum Country {
+    US
+    CA
+    GB
+  }
+
+  type Order {
+    id: ID
+    products: [Product]!
+    shipmentAddress: Address
+    billingAddress: Address
+    orderedAtMillis: Int
+    status: OrderStatus
+  }
+
+  enum OrderStatus {
+    PAID
+    SHIPPED
+    DELIVERED
+    CANCELLED
+    RETURNED
+  }
+
+  type Product {
+    id: ID
+  }

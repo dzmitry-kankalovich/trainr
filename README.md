@@ -3,9 +3,9 @@
 Sample project to try-out different platforms and technologies.
 
 Implementation plan:
-* API - GraphQL / Apollo on Node.js
+* API - GraphQL / Apollo on Node.js + TypeScript + ESLint + Jest
 * Services - Go lang
-* Database - MongoDB
+* Database - MongoDB / Neo4j
 * Cache - Redis
 * Communiation - gRPC
 * Proxy - Envoy
@@ -15,3 +15,4 @@ Implementation plan:
 * Deployment - Kubernetes using Helm
 * Build system - Bazel
 * CI - GitHub (?)
+* Payment - Stripe (?)
