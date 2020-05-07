@@ -1,20 +1,16 @@
-import { Resolvers, QueryResolvers, UserResolvers, RequireFields, QueryUserArgs, User, ResolversParentTypes, Address, Country, UserAddress, } from "./gql-types";
+import { Resolvers, QueryResolvers, UserResolvers, QueryUserArgs, User, Country, UserAddress, } from "./gql-types";
 import { data } from "./data";
-import { GraphQLResolveInfo } from "graphql";
 
 export const queryResolvers: QueryResolvers = {
-    me: (obj: any, arg: any, ctx: any): User => data.users[0],
-    user: (
-        parent: any,
-        arg: RequireFields<QueryUserArgs, 'id'>,
-        ctx: any, info: GraphQLResolveInfo): User | null => {
+    me: (): User => data.users[0],
+    user: (_, arg: QueryUserArgs): User | null => {
         const user = data.users.find((user) => user.id === arg.id);
         return user ? user : null;
     }
 }
 
 export const userResolvers: UserResolvers = {
-    addresses: (parent: User, arg: any, ctx: any): UserAddress[] => [{
+    addresses: (parent: User): UserAddress[] => [{
         id: "1",
         address: {
             addressLine1: "3035 Whatever ave",

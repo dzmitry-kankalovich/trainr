@@ -1,4 +1,4 @@
-import { ApolloServer, gql } from 'apollo-server';
+import { ApolloServer, ServerInfo } from 'apollo-server';
 import { importSchema } from 'graphql-import'
 // import { makeExecutableSchema } from 'graphql-tools'
 import { allResolvers as resolvers } from './resolvers' 
@@ -12,6 +12,6 @@ const server = new ApolloServer({ typeDefs, resolvers: resolvers as any });
 // The `listen` method launches a web server.
 server.listen({
   port: 8080
-}).then(() => {
-  console.log(`🚀 Server ready`);
+}).then((serverInfo: ServerInfo) => {
+  console.log(`🚀 Server ready ${serverInfo.url}`);
 });
