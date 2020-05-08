@@ -1,7 +1,7 @@
 import { ApolloServer, ServerInfo } from 'apollo-server';
 import { importSchema } from 'graphql-import'
 // import { makeExecutableSchema } from 'graphql-tools'
-import { allResolvers as resolvers } from './resolvers' 
+import { resolvers } from './resolvers/resolvers' 
 
 const typeDefs = importSchema('graphql/schema.graphql');
 

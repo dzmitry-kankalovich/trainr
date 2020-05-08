@@ -15,11 +15,53 @@ export type Query = {
    __typename?: 'Query';
   me: User;
   user?: Maybe<User>;
+  users?: Maybe<Array<Maybe<User>>>;
 };
 
 
 export type QueryUserArgs = {
   id: Scalars['ID'];
+};
+
+export type Mutation = {
+   __typename?: 'Mutation';
+  createUser: User;
+  addAddress: Address;
+};
+
+
+export type MutationCreateUserArgs = {
+  userInput: UserInput;
+};
+
+
+export type MutationAddAddressArgs = {
+  userId: Scalars['ID'];
+  address: AddressInput;
+  isDefault: Scalars['Boolean'];
+};
+
+export type UserInput = {
+  firstName: Scalars['String'];
+  middleName?: Maybe<Scalars['String']>;
+  lastName: Scalars['String'];
+  email: Scalars['String'];
+  phone?: Maybe<Scalars['String']>;
+  address?: Maybe<AddressInput>;
+  paymentMethod?: Maybe<PaymentMethodInput>;
+};
+
+export type PaymentMethodInput = {
+  billingAddress: AddressInput;
+};
+
+export type AddressInput = {
+  addressLine1: Scalars['String'];
+  addressLine2?: Maybe<Scalars['String']>;
+  city: Scalars['String'];
+  state: Scalars['String'];
+  country: Country;
+  zip: Scalars['String'];
 };
 
 export type User = {
@@ -30,7 +72,7 @@ export type User = {
   lastName: Scalars['String'];
   email: Scalars['String'];
   phone?: Maybe<Scalars['String']>;
-  addresses?: Maybe<Array<Maybe<UserAddress>>>;
+  addresses?: Maybe<Array<Maybe<Address>>>;
   orders?: Maybe<Array<Maybe<Order>>>;
   wishlists?: Maybe<Array<Maybe<Wishlist>>>;
   paymentMethods?: Maybe<Array<Maybe<PaymentMethod>>>;
@@ -48,12 +90,12 @@ export type PaymentMethod = {
   id: Scalars['ID'];
   name: Scalars['String'];
   type: PaymentType;
-  billingAddress?: Maybe<UserAddress>;
+  billingAddress?: Maybe<Address>;
   /** If this is a default payment method for user */
   default?: Maybe<Scalars['Boolean']>;
 };
 
-export type PaymentType = PaymentTypeCard;
+export type PaymentType = PaymentTypeCard | PaymentTypePayPal;
 
 export type PaymentTypePayPal = {
    __typename?: 'PaymentTypePayPal';
@@ -88,22 +130,17 @@ export enum Bank {
   Discover = 'DISCOVER'
 }
 
-export type UserAddress = {
-   __typename?: 'UserAddress';
-  id: Scalars['ID'];
-  address?: Maybe<Address>;
-  /** If this is a default selected address for user */
-  default?: Maybe<Scalars['Boolean']>;
-};
-
 export type Address = {
    __typename?: 'Address';
+  id: Scalars['ID'];
   addressLine1: Scalars['String'];
   addressLine2?: Maybe<Scalars['String']>;
   city: Scalars['String'];
   state: Scalars['String'];
   country: Country;
   zip: Scalars['String'];
+  /** If this is a default selected address for user */
+  default?: Maybe<Scalars['Boolean']>;
 };
 
 export enum Country {
@@ -212,16 +249,19 @@ export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>,
   Query: ResolverTypeWrapper<{}>,
   ID: ResolverTypeWrapper<Scalars['ID']>,
+  Mutation: ResolverTypeWrapper<{}>,
+  UserInput: UserInput,
+  PaymentMethodInput: PaymentMethodInput,
+  AddressInput: AddressInput,
   User: ResolverTypeWrapper<User>,
   Wishlist: ResolverTypeWrapper<Wishlist>,
   PaymentMethod: ResolverTypeWrapper<Omit<PaymentMethod, 'type'> & { type: ResolversTypes['PaymentType'] }>,
-  PaymentType: ResolversTypes['PaymentTypeCard'],
+  PaymentType: ResolversTypes['PaymentTypeCard'] | ResolversTypes['PaymentTypePayPal'],
   PaymentTypePayPal: ResolverTypeWrapper<PaymentTypePayPal>,
   PaymentTypeCard: ResolverTypeWrapper<PaymentTypeCard>,
   CardType: CardType,
   CardProvider: CardProvider,
   Bank: Bank,
-  UserAddress: ResolverTypeWrapper<UserAddress>,
   Address: ResolverTypeWrapper<Address>,
   Country: Country,
   Order: ResolverTypeWrapper<Order>,
@@ -236,16 +276,19 @@ export type ResolversParentTypes = {
   Boolean: Scalars['Boolean'],
   Query: {},
   ID: Scalars['ID'],
+  Mutation: {},
+  UserInput: UserInput,
+  PaymentMethodInput: PaymentMethodInput,
+  AddressInput: AddressInput,
   User: User,
   Wishlist: Wishlist,
   PaymentMethod: Omit<PaymentMethod, 'type'> & { type: ResolversParentTypes['PaymentType'] },
-  PaymentType: ResolversParentTypes['PaymentTypeCard'],
+  PaymentType: ResolversParentTypes['PaymentTypeCard'] | ResolversParentTypes['PaymentTypePayPal'],
   PaymentTypePayPal: PaymentTypePayPal,
   PaymentTypeCard: PaymentTypeCard,
   CardType: CardType,
   CardProvider: CardProvider,
   Bank: Bank,
-  UserAddress: UserAddress,
   Address: Address,
   Country: Country,
   Order: Order,
@@ -257,6 +300,12 @@ export type ResolversParentTypes = {
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   me?: Resolver<ResolversTypes['User'], ParentType, ContextType>,
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>,
+  users?: Resolver<Maybe<Array<Maybe<ResolversTypes['User']>>>, ParentType, ContextType>,
+};
+
+export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  createUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationCreateUserArgs, 'userInput'>>,
+  addAddress?: Resolver<ResolversTypes['Address'], ParentType, ContextType, RequireFields<MutationAddAddressArgs, 'userId' | 'address' | 'isDefault'>>,
 };
 
 export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
@@ -266,7 +315,7 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
   lastName?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
   phone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>,
-  addresses?: Resolver<Maybe<Array<Maybe<ResolversTypes['UserAddress']>>>, ParentType, ContextType>,
+  addresses?: Resolver<Maybe<Array<Maybe<ResolversTypes['Address']>>>, ParentType, ContextType>,
   orders?: Resolver<Maybe<Array<Maybe<ResolversTypes['Order']>>>, ParentType, ContextType>,
   wishlists?: Resolver<Maybe<Array<Maybe<ResolversTypes['Wishlist']>>>, ParentType, ContextType>,
   paymentMethods?: Resolver<Maybe<Array<Maybe<ResolversTypes['PaymentMethod']>>>, ParentType, ContextType>,
@@ -284,13 +333,13 @@ export type PaymentMethodResolvers<ContextType = any, ParentType extends Resolve
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>,
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
   type?: Resolver<ResolversTypes['PaymentType'], ParentType, ContextType>,
-  billingAddress?: Resolver<Maybe<ResolversTypes['UserAddress']>, ParentType, ContextType>,
+  billingAddress?: Resolver<Maybe<ResolversTypes['Address']>, ParentType, ContextType>,
   default?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 };
 
 export type PaymentTypeResolvers<ContextType = any, ParentType extends ResolversParentTypes['PaymentType'] = ResolversParentTypes['PaymentType']> = {
-  __resolveType: TypeResolveFn<'PaymentTypeCard', ParentType, ContextType>
+  __resolveType: TypeResolveFn<'PaymentTypeCard' | 'PaymentTypePayPal', ParentType, ContextType>
 };
 
 export type PaymentTypePayPalResolvers<ContextType = any, ParentType extends ResolversParentTypes['PaymentTypePayPal'] = ResolversParentTypes['PaymentTypePayPal']> = {
@@ -307,20 +356,15 @@ export type PaymentTypeCardResolvers<ContextType = any, ParentType extends Resol
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 };
 
-export type UserAddressResolvers<ContextType = any, ParentType extends ResolversParentTypes['UserAddress'] = ResolversParentTypes['UserAddress']> = {
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>,
-  address?: Resolver<Maybe<ResolversTypes['Address']>, ParentType, ContextType>,
-  default?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>,
-  __isTypeOf?: isTypeOfResolverFn<ParentType>,
-};
-
 export type AddressResolvers<ContextType = any, ParentType extends ResolversParentTypes['Address'] = ResolversParentTypes['Address']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>,
   addressLine1?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
   addressLine2?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>,
   city?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
   state?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
   country?: Resolver<ResolversTypes['Country'], ParentType, ContextType>,
   zip?: Resolver<ResolversTypes['String'], ParentType, ContextType>,
+  default?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>,
   __isTypeOf?: isTypeOfResolverFn<ParentType>,
 };
 
@@ -341,13 +385,13 @@ export type ProductResolvers<ContextType = any, ParentType extends ResolversPare
 
 export type Resolvers<ContextType = any> = {
   Query?: QueryResolvers<ContextType>,
+  Mutation?: MutationResolvers<ContextType>,
   User?: UserResolvers<ContextType>,
   Wishlist?: WishlistResolvers<ContextType>,
   PaymentMethod?: PaymentMethodResolvers<ContextType>,
   PaymentType?: PaymentTypeResolvers,
   PaymentTypePayPal?: PaymentTypePayPalResolvers<ContextType>,
   PaymentTypeCard?: PaymentTypeCardResolvers<ContextType>,
-  UserAddress?: UserAddressResolvers<ContextType>,
   Address?: AddressResolvers<ContextType>,
   Order?: OrderResolvers<ContextType>,
   Product?: ProductResolvers<ContextType>,

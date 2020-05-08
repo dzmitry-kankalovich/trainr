@@ -1,4 +1,4 @@
-import { User } from "./gql-types";
+import { User } from "../gql-types";
 
 interface Data {
     users: User[]
